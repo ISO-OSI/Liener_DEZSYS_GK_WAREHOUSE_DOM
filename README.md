@@ -1,174 +1,316 @@
-# Middleware Engineering "Document Oriented Middleware using MongoDB" - Taskdescription
-GIT repository: [https://github.com/ThomasMicheler/DEZSYS_GK_WAREHOUSE_DOM.git](https://github.com/ThomasMicheler/DEZSYS_GK_WAREHOUSE_DOM.git)
+# Warehouse DOM MongoDB Project
 
-## Einführung
+This is my small Spring Boot project for the document oriented middleware task.
+The app stores warehouse product data in MongoDB.
 
-Diese Übung soll helfen die Funktionsweise und Einsatzmöglichkeiten eines dokumentenorientierten dezentralen Systems mit Hilfe des Frameworks Spring Data MongoDB oder einem Framework Ihrer Wahl zu demonstrieren. Die Daten werden in dieser Übung in einem NoSQL Repository gespeichert und verarbeitet.
+I kept the project close to the original tutorial code. There is still one main
+`Application` class, one model class called `ProductData`, and one Mongo
+repository. I did not add a big service layer because this is only the GK part.
 
-Es handelt sich um ein Lagerstandort Beispiel, wie in Aufgabe "GK8.1 Spring Data and ORM". Die Daten aller Lagerstandorte sollen in der Zentrale persistiert und in einer NoSQL Datenbank gespeichert werden. Von hier aus koennen die Daten fuer verschiedene Fragestellungen des Betriebes (Management, Einkauf, Vertrieb,...) abgefragt werden.
+## What the app does
 
-## 1.1 Ziele
+The app starts with one warehouse and 10 products.
+The products are saved in MongoDB. The products have 3 categories:
 
-Das Ziel dieser Übung ist die Implementierung einer dokumentenorientierten Middleware, die die Daten aller Warenlager zentral in einem entsprechenden Format ablegt.
+- `Getraenk`
+- `Waschmittel`
+- `Tierfutter`
 
-## 1.2 Voraussetzungen
+The warehouse id is `1`. For GK I only use one warehouse, because more
+warehouses are part of the advanced requirements.
 
-* Grundlagen zu JSON & REST
-* Grundlagen Architektur von verteilten Systemen
-* Grundlagen Spring Framework, Spring Boot oae.
-* Grundlagen NoSQL
-* Installation MongoDB
-* Datenstruktur basierend auf der Aufgabenstellung "GK8.1 Spring Data and ORM"
-* Umsetzung eines einfachen Web-Userinterfaces zur Anzeige von Daten
+## Technologies
 
+- Java
+- Spring Boot
+- Spring Web
+- Spring Data MongoDB
+- MongoDB
+- Gradle
+- Docker Desktop
+- IntelliJ IDEA
 
-## 1.3 Aufgabenstellung
+## Short MongoDB explanation
 
-Implementieren Sie eine dokumentenorientierte Middleware mit Hilfe von MongoDB, dass Daten über eine REST Schnittstellen empfängt und die Daten des Lagerstandortes in einer MongoDB Datenbank im JSON Format abspeichert. Entwerfen Sie eine geeignet Datenstruktur, um eine kontinuierliche Speicherung der Daten zu gewährleisten.
+MongoDB is a NoSQL database. It stores data as documents. A document looks a bit
+like JSON. This is good for this project because warehouse data can be saved in
+a simple document structure and checked in the mongo shell.
 
-Es sollen dabei folgende REST-Funktionen implementiert werden:  
+In SQL I would normally make tables and relations. In MongoDB I can save data
+more directly as product documents.
 
-* POST /warehouse: fügt einen neuen Lagerstandort hinzu. 
-* GET /warehouse: abrufen aller Lagerstandorte und deren Lagerbestand  
-* GET /warehouse/{id}: abrufen eines Lagerstandortes id und dessen Lagerbestand  
-* DELETE /warehouse/{id}: löschen eines Lagerstandortes id   
+## REST API
 
-* POST /product: fügt ein neues Produkt und dessen Lagerbestand zu einem Lagerstandort hinzu
-* GET /product: abrufen aller Produkte/Lagerbestand und deren Lagerstandort
-* GET /product/{id}: abrufen eines Produktes id und dessen Lagerstandorte
-* DELETE /product/{id}: löschen eines Produktes id auf einem Lagerstandort
+Only the GK endpoints are implemented:
 
-Das Format und in welchen Zeitabständen die Daten eintreffen wird von Ihnen, als System Architekt, spezifiziert und implementiert.
+| Method | URL | What it does |
+| --- | --- | --- |
+| `GET` | `/product` | Shows all products |
+| `POST` | `/product` | Adds one product |
+| `GET` | `/warehouse` | Shows all products from warehouse `1` |
 
-Die Daten werden in der Zentrale in einem MongoDB Repository gespeichert und können hier zu Kontrollzwecken abgerufen werden (mongo Shell).
+I did not implement the full endpoint list with `GET /warehouse/{id}`,
+`DELETE /warehouse/{id}`, `GET /product/{id}` and `DELETE /product/{id}`.
+That belongs to the advanced part in the assignment.
 
-## 1.4 Demo Applikation
+## JSON example
 
-* Download Docker for MongoDB  
-  `docker pull mongo`  
+This is an example body for `POST /product`:
 
-* Run Docker for MongoDB (using port 27017, name mongo)  
-  `docker run -d -p 27017:27017 --name mongo mongo`  
+```json
+{
+  "warehouseID": "1",
+  "productID": "00-999999",
+  "productName": "Test Produkt",
+  "productCategory": "Getraenk",
+  "productQuantity": 50
+}
+```
 
-* Run MongoShell on Docker Instance  
-  `docker exec -it mongo bash`  
-  `mongosh`  
+The app saves it as a MongoDB document.
 
-* Execute MongoShell Commands    
-  `show dbs`  
-  `use local`   
-  `db.startup_log.countDocuments();`    
+## How I started the project
 
-* Accessing Data with MongoDB and Spring  
-  - Build and Run Example  
-	  `gradle clean bootRun`  
+### Docker
 
-  - Check Data in MongoDB.  
-    `docker exec -it mongo bash`
-    `mongosh`
-    `use test`
-    `db.warehouseData.find()`  
+1. I opened Docker Desktop on Windows.
+2. I waited until Docker Desktop was fully started.
+3. I opened a terminal.
+4. I downloaded the MongoDB image:
 
-## 1.5 Bewertung  
+```bash
+docker pull mongo
+```
 
-*   Gruppengrösse: 1 Person
-*   Abgabemodus: per Protokoll und Abgabespraech
-*   Grundlagen Anforderungen **"Grundlagen"**
-    * Installation und Konfiguration einer dokumentenorientierten Middleware mit einem Framework Ihrer Wahl und MongoDB
-    * Entwurf und Umsetzung einer entsprechenden JSON Datenstruktur
-    * Speicherung der Daten von nur einem Lagerstandort
-    * Speicherung der Daten in einer MongoDB Datenbank in der Zentrale
-        - mindestens 10 Produkte in 3 Produktkategorien
-    * REST API:
-        - POST /product, GET /product, GET /warehouse
-    * Beantwortung der Fragestellungen   
-    * 5 CRUD Operationen über Mongo Shell
-      Dokumentieren Sie den Mongo Shell Befehl und dessen Ergebnis.
-      Beispiel: ein Produkt hinzufügen, ein Produkt löschen, ein Produkt ändern, ...
-*   Erweiterte Anforderungen **"Erweiterte Grundlagen"**
-    * Erweiterung der Datenstruktur, sodass ein Speicherung der Daten von mehreren Lagerstandorten möglich ist.
-    * REST API: Implementierung der gesamten Schnittstelle, wie in der Angabe beschrieben
-    * Implementieren Sie eine kleine Applikation, dass die Daten generiert und über das REST-Interfaces dieser Übung abspeichert.
-      Dabei werden sowohl Produkte, als auch Lagerstandorte abgelegt.
-*   Erweiterte Anforderungen **"Vertiefung"**
-    * Generieren Testdaten für das Berichtswesen: mind. 300 Produkte in 6 Produktkategorien, 5 Warenhaeuser   
-    * Formulierung 3 sinnvoller Fragestellungen für das Berichtswesen in der Zentrale und deren Abfragen in einer Mongo Shell.
-      Beispiel:
-      Wie ist der Lagerbestand von einem Produkt X über alle Lagerstandorte?
-      Welche Produkte haben einen Lagerbestand von unter 10 Stück über alle Lagerstandorte?
-    * Implementieren Sie eine Schnittstelle zu einer AI Instanz (lokal Ollama, cloud-basiert Gemini), um die Daten zu übertragen und lassen Sie sich zu den 3 Fragestellungen einen Bericht / Grafik von der AI entwerfen. Dokumentieren Sie hier die Anfragen, die Ihre Applikation an die AI Instanz sendet.
+5. I started the MongoDB container:
 
-## 1.6 Fragestellung für Protokoll
+```bash
+docker run -d -p 27017:27017 --name mongo mongo
+```
 
-+ Nennen Sie 4 Vorteile eines NoSQL Repository im Gegensatz zu einem relationalen DBMS
-+ Nennen Sie 4 Nachteile eines NoSQL Repository im Gegensatz zu einem relationalen DBMS
-+ Welche Schwierigkeiten ergeben sich bei der Zusammenführung der Daten?
-+ Welche Arten von NoSQL Datenbanken gibt es?
-+ Nennen Sie einen Vertreter für jede Art?
-+ Beschreiben Sie die Abkürzungen CA, CP und AP in Bezug auf das CAP Theorem
-+ Mit welchem Befehl koennen Sie den Lagerstand eines Produktes aller Lagerstandorte anzeigen.
-+ Mit welchem Befehl koennen Sie den Lagerstand eines Produktes eines bestimmten Lagerstandortes anzeigen.
+6. If the name `mongo` already exists, I can remove the old container first:
 
-## 1.7 Links und Dokumente
-* [Was bedeutet NoSQL](https://www.oracle.com/at/database/nosql/what-is-nosql)
-* [Accessing Data with MongoDB](https://spring.io/guides/gs/accessing-data-mongodb/)
-* [MongoDB Installation](https://docs.mongodb.com/manual/administration/install-community/)
-* [mongo Shell Quick Reference](https://docs.mongodb.com/manual/reference/mongo-shell/)
-* [mongo Shell Query Reference](https://www.mongodb.com/docs/manual/tutorial/query-embedded-documents/)
-* [Grundlagen Spring Framework](https://spring.io/)
-* [Spring Boot](https://spring.io/guides/gs/spring-boot/)
-* [Spring Data MongoDB](https://spring.io/projects/spring-data-mongodb)
-* [Spring RESTful Web Service](https://spring.io/guides/gs/rest-service/#use-maven)
-* NoSQL Introduction
-  - [NoSQL on w3resource](https://www.w3resource.com/mongodb/nosql.php)  
-  - [Introduction to NoSQL Database](https://www.edureka.co/blog/introduction-to-nosql-database/)  
-  - [NoSQL im Überblick](https://www.heise.de/ct/artikel/NoSQL-im-Ueberblick-1012483.html)  
-  - [Introduction to NoSQL Databases on YouTube ](https://www.youtube.com/watch?v=2yQ9TGFpDuM)  
+```bash
+docker rm -f mongo
+```
 
+Then I run the `docker run` command again.
 
-## 1.8 Mongo Shell Abfragen  
-  
-Link to [Mongo Shell Query and Projection Operators](https://docs.mongodb.com/manual/reference/operator/query/)
+7. I checked if the container is running:
 
-Den Demo-Abfragen liegt folgende Datenstruktur zu Grunde:   
-   `{  `  
-   `    warehouseID: '1',   `   
-   `    warehouseName: 'Linz Bahnhof',   `   
-   `   timestamp: '2022-01-02 01:00:00',   `   
-   `    warehousePostalCode: 4010,`    
-   `   warehouseCity: 'Linz',`   
-   `   warehouseCountrz: 'Austria',`   
-   `   productData: [`  
-   `      { productID: '00-443175', productName: 'Bio Orangensaft Sonne', productQuantity: 2500 },`    
-   `      { productID: '00-871895', productName: 'Bio Apfelsaft Gold', productQuantity: 3420 },`    
-   `      { productID: '01-926885', productName: 'Ariel Waschmittel Color', productQuantity: 478 },`     
-   `   ]`   
-    `}`
-  
-* Filtern nach dem Lagerstandort 1    
-`db.productData.find( { 
-	"warehouseID": "1"
-} )`
+```bash
+docker ps
+```
 
+There should be a container with the name `mongo`.
 
-* Filtern nach Lagerstandort 1 und dem Produkt mit dem Namen "Bio Apfelsaft Gold"  
-`db.productData.find( { 
-	"warehouseID": "1",
-        "productName": "Bio Apfelsaft Gold"
-} )`
+### IntelliJ IDEA
 
-* Filtern nach allen Produkten, die einen Lagerbestand unter 500 Stueck haben.  
-`db.productData.find( { 
-	"productQuantity": { $lte: 500 }
-} )`
+1. I opened IntelliJ IDEA.
+2. I opened this project folder.
+3. I waited until Gradle loaded the project.
+4. If Gradle did not load, I clicked the Gradle reload button.
+5. I checked the JDK in the project settings. I used JDK 18 or newer.
+6. I opened `src/main/java/warehouse/Application.java`.
+7. I started the `Application` class with the green run button.
 
-* Filtern nach Lagerstandort 1 und einem Lagerbestand unter 500 Stueck haben.  
-`db.productData.find( { 
-    "warehouseID": "1",
-    "productQuantity": { $lte: 500 }
-} )`
+### Spring Boot with Gradle
 
-* Filtern nach allen Produkten der Produktkategorien.  
-`db.productData.find( { 
-     productCategory: { $in: [ "Waschmittel", "Getraenk" ] } 
-} )`
+I can also start it in the terminal:
+
+```bash
+gradle clean
+gradle bootRun
+```
+
+On Windows with the included Gradle wrapper:
+
+```bash
+.\gradlew.bat clean
+.\gradlew.bat bootRun
+```
+
+When the app starts, I check the logs. Spring Boot should start on port `8080`.
+
+### MongoDB shell
+
+I open the mongo shell in the Docker container:
+
+```bash
+docker exec -it mongo mongosh
+```
+
+Then I use the test database:
+
+```javascript
+show dbs
+use test
+db.productData.find()
+```
+
+The collection is called `productData`, because the model class is called
+`ProductData`.
+
+### API testing
+
+Show all products:
+
+```bash
+curl http://localhost:8080/product
+```
+
+Show warehouse data:
+
+```bash
+curl http://localhost:8080/warehouse
+```
+
+Add one product:
+
+```bash
+curl -X POST http://localhost:8080/product ^
+  -H "Content-Type: application/json" ^
+  -d "{\"warehouseID\":\"1\",\"productID\":\"00-999999\",\"productName\":\"Test Produkt\",\"productCategory\":\"Getraenk\",\"productQuantity\":50}"
+```
+
+In the browser I can also open:
+
+```text
+http://localhost:8080/product
+http://localhost:8080/warehouse
+```
+
+## Mongo shell CRUD examples
+
+These commands are for the protocol part.
+
+Create one product:
+
+```javascript
+db.productData.insertOne({
+  warehouseID: "1",
+  productID: "00-123456",
+  productName: "Traubensaft Rot",
+  productCategory: "Getraenk",
+  productQuantity: 70
+})
+```
+
+Read all products:
+
+```javascript
+db.productData.find()
+```
+
+Read one product:
+
+```javascript
+db.productData.find({ productID: "00-123456" })
+```
+
+Update one product:
+
+```javascript
+db.productData.updateOne(
+  { productID: "00-123456" },
+  { $set: { productQuantity: 99 } }
+)
+```
+
+Delete one product:
+
+```javascript
+db.productData.deleteOne({ productID: "00-123456" })
+```
+
+## Development log
+
+- I checked the original tutorial project structure.
+- I kept the simple `Application`, `ProductData`, `WarehouseRepository` setup.
+- I changed the start data to one warehouse.
+- I added 10 products in 3 categories.
+- I added the GK REST endpoints.
+- I did not add advanced endpoints or test data generators.
+
+## Problems / issues
+
+- MongoDB must run before starting the Spring Boot app.
+- If the Docker container name already exists, the start command fails.
+- The app deletes old product data on every start because the tutorial code also
+  uses `repository.deleteAll()`.
+
+## What was changed
+
+- `Application.java`: added the simple REST endpoints and changed the demo data.
+- `README.md`: added this start guide and the GK documentation.
+
+## Theory questions
+
+4 advantages of NoSQL compared to SQL:
+
+- Documents can be flexible.
+- JSON-like data is easy to save.
+- It can be easier to change the structure.
+- Some NoSQL databases can scale well.
+
+4 disadvantages of NoSQL compared to SQL:
+
+- Relations are not as strict as in SQL.
+- Joins are not used in the same way.
+- Data can become duplicated.
+- Transactions and consistency can be harder, depending on the database.
+
+Difficulties when data is merged:
+
+- Different warehouses can send different formats.
+- Product ids must match.
+- Old and new stock data can be mixed up.
+- Time stamps are important so the newest data is clear.
+
+Types of NoSQL databases and examples:
+
+- Document database: MongoDB
+- Key-value database: Redis
+- Column database: Cassandra
+- Graph database: Neo4j
+
+CAP theorem:
+
+- CA means consistency and availability.
+- CP means consistency and partition tolerance.
+- AP means availability and partition tolerance.
+
+Command for stock of one product in all warehouses:
+
+```javascript
+db.productData.find({ productID: "00-871895" })
+```
+
+Command for stock of one product in one warehouse:
+
+```javascript
+db.productData.find({ warehouseID: "1", productID: "00-871895" })
+```
+
+## GK status
+
+Done:
+
+- MongoDB with Spring Data MongoDB
+- JSON document structure with `ProductData`
+- One warehouse
+- 10 products
+- 3 product categories
+- `POST /product`
+- `GET /product`
+- `GET /warehouse`
+- Mongo shell commands for CRUD in the README
+
+Not done:
+
+- More than one warehouse
+- Full REST API with delete and id endpoints
+- Test data generator
+- Reporting or AI features
+
+These are not done because they are not needed for GK.
